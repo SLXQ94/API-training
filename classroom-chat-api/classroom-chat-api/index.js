@@ -20,6 +20,7 @@
 // ============================================================================
 const os = require('os');
 const express = require('express');
+const cron = require('node-cron');
 
 const { sendError } = require('./lib/errors');
 const usersRouter = require('./routes/users');
@@ -30,6 +31,7 @@ const rateLimit = require('./middleware/rateLimit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const BASE_URL= process.env.BASE_URL;
 
 // ============================================================================
 // MIDDLEWARE SLOTS
@@ -39,22 +41,22 @@ const PORT = process.env.PORT || 3000;
 // ============================================================================
 
 // STEP 5: logger
-// app.use(logger);
+app.use(logger);
 
 // STEP 7: global rate limit, 10 requests / 10 seconds per IP.
 // It sits BEFORE auth on purpose: wrong-password attempts get counted too (brute-force protection).
-// app.use(rateLimit({ windowMs: 10_000, max: 10 }));
+app.use(rateLimit({ windowMs: 10_000, max: 10 }));
 
 // STEP 6: password protection.
 // We protect specific paths. POST /users stays open, otherwise nobody could ever register.
-// app.use('/messages', requireAuth);
-// app.get('/users', requireAuth);
-// app.get('/users/:rollNo', requireAuth);
-// app.get('/me', requireAuth, (req, res) => res.json(req.user));
+app.use('/messages', requireAuth);
+app.get('/users', requireAuth);
+app.get('/users/:rollNo', requireAuth);
+app.get('/me', requireAuth, (req, res) => res.json(req.user));
 
 // STEP 8: stricter limit on SENDING, 3 messages / 10 seconds.
 // It sits AFTER auth on purpose: now req.user exists, so the limit is per person, not per IP.
-// app.post('/messages', rateLimit({ windowMs: 10_000, max: 3 }));
+app.post('/messages', rateLimit({ windowMs: 10_000, max: 3 }));
 
 // ============================================================================
 // ROUTES
@@ -87,6 +89,26 @@ app.use((err, req, res, next) => {
   }
   console.error(err);
   sendError(res, 500, 'INTERNAL', 'Something went wrong on the server');
+});
+
+// ✅ Cron job: Every 14 minutes, call /health (e.g., for uptime monitoring or keep-alive)
+// Runs at minutes: 0, 14, 28, 42 of every hour
+cron.schedule('*/10 * * * *', async () => {
+  const healthUrl = `${BASE_URL}/health`;
+  console.log(`[CRON] Calling health check: ${healthUrl}`);
+  try {
+    const res = await fetch(healthUrl, { 
+      timeout: 5000,
+    });
+    const status = res.status;
+    const body = await res.json().catch(() => ({}));
+    console.log(`[CRON] Health check response: ${status}`, body.status || '');
+  } catch (err) {
+    console.warn(`[CRON] Health check failed:`, err.message);
+  }
+}, {
+  scheduled: true,
+  timezone: 'Asia/Kolkata' // Optional: adjust as needed
 });
 
 // ============================================================================

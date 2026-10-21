@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const DB_FILE = path.join(DATA_DIR, 'dbcs1.json');
 const EMPTY = { users: [], messages: [], nextMessageId: 1 };
 
 function ensureFile() {

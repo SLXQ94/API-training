@@ -195,14 +195,14 @@ function deleteMessage(req, res) {
 // ROUTE TABLE  -  uncomment one line at a time during the lecture
 // ----------------------------------------------------------------------------
 // STEP 3a: send a message
-// router.post('/', sendMessage);
+router.post('/', sendMessage);
 // STEP 3b: read messages (filters: with, after, limit)
-// router.get('/', listMessages);
+router.get('/', listMessages);
 // STEP 3c: read one message
-// router.get('/:id', getMessage);
+router.get('/:id', getMessage);
 // STEP 4a: edit my message
-// router.patch('/:id', editMessage);
+router.patch('/:id', editMessage);
 // STEP 4b: delete my message
-// router.delete('/:id', deleteMessage);
+router.delete('/:id', deleteMessage);
 
 module.exports = router;
