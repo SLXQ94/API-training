@@ -20,6 +20,7 @@
 // ============================================================================
 const os = require('os');
 const express = require('express');
+const cors = require('cors');
 const cron = require('node-cron');
 
 const { sendError } = require('./lib/errors');
@@ -31,7 +32,7 @@ const rateLimit = require('./middleware/rateLimit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BASE_URL= process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL;
 
 // ============================================================================
 // MIDDLEWARE SLOTS
@@ -39,6 +40,8 @@ const BASE_URL= process.env.BASE_URL;
 // routes they are meant to protect. A middleware placed after a route never sees
 // that route's requests.
 // ============================================================================
+
+app.use(cors());
 
 // STEP 5: logger
 app.use(logger);
@@ -97,7 +100,7 @@ cron.schedule('*/10 * * * *', async () => {
   const healthUrl = `${BASE_URL}/health`;
   console.log(`[CRON] Calling health check: ${healthUrl}`);
   try {
-    const res = await fetch(healthUrl, { 
+    const res = await fetch(healthUrl, {
       timeout: 5000,
     });
     const status = res.status;
