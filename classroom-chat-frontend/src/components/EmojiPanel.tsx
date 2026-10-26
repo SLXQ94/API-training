@@ -72,7 +72,7 @@ function EmojiGrid({ emojis, label, onPick }: { emojis: string[]; label: string;
   );
 }
 
-export function EmojiPanel({ onPick }: { onPick: (emoji: string) => void }) {
+export function EmojiPanel({ onPick, style }: { onPick: (emoji: string) => void; style?: React.CSSProperties }) {
   const [recent, setRecent] = useState(loadRecentEmoji);
   const [active, setActive] = useState(recent.length ? 'recent' : EMOJI_CATEGORIES[0].id);
   const [query, setQuery] = useState('');
@@ -110,6 +110,7 @@ export function EmojiPanel({ onPick }: { onPick: (emoji: string) => void }) {
   return (
     <div
       className="emoji-panel"
+      style={style}
       onPointerDown={(event) => {
         if (event.target instanceof Element && event.target.closest('button')) event.preventDefault();
       }}

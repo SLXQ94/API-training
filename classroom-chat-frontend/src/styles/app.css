@@ -1212,6 +1212,13 @@
   animation: rise 0.15s ease-out;
 }
 
+/* on a phone the panel swaps places with the keyboard, which has no fade, so neither should it */
+@media (pointer: coarse) {
+  .emoji-panel {
+    animation: none;
+  }
+}
+
 .emoji-search-wrap {
   flex: none;
   padding: 10px 12px 2px;

@@ -22,9 +22,6 @@ npm run build      # output in dist/
 
 Upload `dist/` to any static host. Routing uses the URL hash (`#/chat/CS101`), so no rewrite rules are needed.
 
-On the API side, set `CORS_ORIGIN` to your frontend's URL (for example `https://my-chat.netlify.app`).
-If it is unset the API answers any origin.
-
 ## What it does
 
 - Log in / create account (roll number + password), session kept on the device
@@ -53,4 +50,4 @@ src/components/     Sidebar, ChatView, Composer, MessageRow, ...
 src/styles/         index.css (design tokens, light + dark), app.css (layout and components)
 ```
 
-The emoji picker uses the full WhatsApp Business Web category and English keyword tables stored in `src/emoji-data/`. Its search module loads when first used, and the picker renders only visible emoji rows. Picker, message, and composer emoji use the same 64 px WhatsApp Web sprite sheets bundled in `public/emoji/wa/64/`; unsupported emoji fall back to the device font. The composer keeps its native textarea for editing and places a synchronized sprite display behind its transparent text, preserving the caret and input behavior. On the first visit to a production build, the service worker downloads all 152 sheets (4.46 MB) in the background and stores them with the app's other assets. There is no time-based cache expiration; changed files are refreshed when a new service worker installs. Browser storage eviction or cleared site data can still remove the cache. The source sheets can be refreshed with `python scripts/download-whatsapp-emoji.py --refresh` when updating the Unicode table.
+The emoji picker uses the full WhatsApp Business Web category and English keyword tables stored in `src/emoji-data/`. Its search module loads when first used, and the picker renders only visible emoji rows. Picker, message, and composer emoji use the same 64 px WhatsApp Web sprite sheets bundled in `public/emoji/wa/64/`; unsupported emoji fall back to the device font. The composer keeps its native textarea for editing and places a synchronized sprite display behind its transparent text, preserving the caret and input behavior. On the first visit to a production build, the service worker downloads all 152 sheets (4.46 MB) in the background and stores them with the app's other assets. There is no time-based cache expiration; changed files are refreshed when a new service worker installs. Browser storage eviction or cleared site data can still remove the cache.

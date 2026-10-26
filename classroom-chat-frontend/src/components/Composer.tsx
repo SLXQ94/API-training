@@ -1,3 +1,4 @@
+import { flushSync } from 'react-dom';
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { renderComposerEmojiText, renderEmojiText } from '../emoji-render';
@@ -22,9 +23,28 @@ interface Props {
 const MAX_HEIGHT = 120; // about 6 lines, then the box scrolls
 const isTouch = () => matchMedia('(pointer: coarse)').matches;
 
+// Android shrinks the page when the keyboard opens. Remember how tall it was so the emoji panel can
+// take exactly that space and the composer doesn't jump when swapping between the two.
+let fullHeight = window.innerHeight;
+let fullWidth = window.innerWidth;
+let keyboardHeight = 0;
+window.addEventListener('resize', () => {
+  if (window.innerWidth !== fullWidth) { // rotated or window resized: start over
+    fullWidth = window.innerWidth;
+    fullHeight = window.innerHeight;
+    keyboardHeight = 0;
+    return;
+  }
+  fullHeight = Math.max(fullHeight, window.innerHeight);
+  const shrink = fullHeight - window.innerHeight;
+  if (shrink > 150 && document.activeElement instanceof HTMLTextAreaElement) keyboardHeight = shrink;
+});
+
 export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
   const [text, setText] = useState(() => getState().drafts[chatId] ?? '');
   const [emojiOpen, setEmojiOpen] = useState(false);
+  // switching back to the keyboard: keep the panel up until the keyboard has taken its place
+  const [lingering, setLingering] = useState(false);
   const [composing, setComposing] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
   const mirrorRef = useRef<HTMLDivElement>(null);
@@ -59,6 +79,18 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     if (!emojiOpen || !isMobileLayout()) return;
     return pushOverlay(() => setEmojiOpen(false));
   }, [emojiOpen]);
+
+  useEffect(() => {
+    if (!lingering) return;
+    // flushSync so the panel goes away in the same frame the page shrinks for the keyboard
+    const done = () => flushSync(() => setLingering(false));
+    window.addEventListener('resize', done, { once: true });
+    const timer = setTimeout(done, 500);
+    return () => {
+      window.removeEventListener('resize', done);
+      clearTimeout(timer);
+    };
+  }, [lingering]);
 
   const change = (value: string) => {
     setText(value);
@@ -110,6 +142,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     }
   };
 
+  const panelStyle = isTouch() && keyboardHeight ? { height: keyboardHeight } : undefined;
   const hasText = text.trim().length > 0;
   const remaining = MAX_TEXT - text.length;
 
@@ -136,6 +169,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
           aria-pressed={emojiOpen}
           onPointerDown={(e) => e.preventDefault() /* don't steal focus from the text box */}
           onClick={() => {
+            if (emojiOpen && isTouch()) setLingering(true);
             setEmojiOpen((v) => !v);
             ref.current?.focus({ preventScroll: true });
           }}
@@ -185,7 +219,11 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
         </div>
       </div>
 
-      {emojiOpen && <Suspense fallback={<div className="emoji-panel emoji-empty" role="status">Loading emoji…</div>}><EmojiPanel onPick={insertEmoji} /></Suspense>}
+      {(emojiOpen || lingering) && (
+        <Suspense fallback={<div className="emoji-panel emoji-empty" role="status" style={panelStyle}>Loading emoji…</div>}>
+          <EmojiPanel onPick={insertEmoji} style={panelStyle} />
+        </Suspense>
+      )}
     </div>
   );
 }
