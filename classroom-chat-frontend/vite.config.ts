@@ -8,6 +8,11 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'wallpaper.svg', 'apple-touch-icon.png'],
+      workbox: {
+        // Install all local 64px sheets in the background with the app's service
+        // worker. Workbox revisions changed files and does not set an expiry.
+        globPatterns: ['**/*.{js,css,html,webp}'],
+      },
       manifest: {
         name: 'Classroom Chat',
         short_name: 'Chat',

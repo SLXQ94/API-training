@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { renderEmojiText } from './emoji-render';
 
 const timeFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
 export const formatTime = (iso: string) => timeFmt.format(new Date(iso));
@@ -31,11 +32,11 @@ export function formatDayLabel(iso: string) {
 // http(s):// and www. links; the last char class stops trailing punctuation from being swallowed
 const URL_RE = /((?:https?:\/\/|www\.)[^\s<]*[^\s<.,;:!?)"'\]])/gi;
 
-export function renderText(text: string, query = ''): ReactNode[] {
+export function renderText(text: string, query = '', emojiSize: 'small' | 'large' = 'small'): ReactNode[] {
   const out: ReactNode[] = [];
   let last = 0;
   let k = 0;
-  const plain = (s: string) => (query ? highlight(s, query, `h${k++}`) : [s]);
+  const plain = (s: string) => (query ? highlight(s, query, `h${k++}`) : renderEmojiText(s, emojiSize, `e${k++}`));
   for (const m of text.matchAll(URL_RE)) {
     const at = m.index ?? 0;
     if (at > last) out.push(...plain(text.slice(last, at)));
@@ -53,7 +54,7 @@ export function renderText(text: string, query = ''): ReactNode[] {
 
 export function highlight(text: string, query: string, keyPrefix = 'h'): ReactNode[] {
   const q = query.trim();
-  if (!q) return [text];
+  if (!q) return renderEmojiText(text, 'small', keyPrefix);
   const out: ReactNode[] = [];
   const lower = text.toLowerCase();
   const needle = q.toLowerCase();
@@ -62,11 +63,12 @@ export function highlight(text: string, query: string, keyPrefix = 'h'): ReactNo
   for (;;) {
     const at = lower.indexOf(needle, from);
     if (at === -1) break;
-    if (at > from) out.push(text.slice(from, at));
-    out.push(<mark key={`${keyPrefix}-${k++}`}>{text.slice(at, at + needle.length)}</mark>);
+    if (at > from) out.push(...renderEmojiText(text.slice(from, at), 'small', `${keyPrefix}-pre${k}`));
+    out.push(<mark key={`${keyPrefix}-${k}`}>{renderEmojiText(text.slice(at, at + needle.length), 'small', `${keyPrefix}-hit${k}`)}</mark>);
+    k++;
     from = at + needle.length;
   }
-  if (from < text.length) out.push(text.slice(from));
+  if (from < text.length) out.push(...renderEmojiText(text.slice(from), 'small', `${keyPrefix}-tail`));
   return out;
 }
 

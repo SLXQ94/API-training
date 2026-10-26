@@ -72,7 +72,7 @@ export const MessageRow = memo(function MessageRow({ msg, mine, first, senderNam
             {senderName}
           </div>
         )}
-        <span className="text">{renderText(msg.text)}</span>
+        <span className="text">{renderText(msg.text, '', emojiOnly ? 'large' : 'small')}</span>
         <span className={`meta-space${mine ? ' mine' : ''}${msg.editedAt ? ' edited' : ''}`} aria-hidden="true" />
         <span className="meta">
           {msg.editedAt && <span className="edited-label">Edited</span>}

@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { chatName, useChats, type ChatSummary } from '../chats';
 import { formatListTime, formatTime, highlight } from '../format';
+import { renderEmojiText } from '../emoji-render';
 import { Avatar, Icon, MessageStatus, NewChatIcon } from '../icons';
 import { openChat, openNewChat, useRoute } from '../router';
 import { chatOf, isDark, logout, openModal, toggleTheme, useStore } from '../store';
@@ -87,7 +88,7 @@ function ChatRow({ chat, active, onOpen, query = '' }: { chat: ChatSummary; acti
   if (showDraft) {
     preview = (
       <>
-        <span className="preview-draft">Draft:</span> {draft}
+        <span className="preview-draft">Draft:</span> {renderEmojiText(draft)}
       </>
     );
   } else if (last) {
@@ -96,7 +97,7 @@ function ChatRow({ chat, active, onOpen, query = '' }: { chat: ChatSummary; acti
       <>
         {mine && !chat.isGroup && last.status !== 'failed' && <MessageStatus status={last.status} />}
         {who}
-        {last.text.replace(/\s*\n\s*/g, ' ')}
+        {renderEmojiText(last.text.replace(/\s*\n\s*/g, ' '))}
       </>
     );
   }

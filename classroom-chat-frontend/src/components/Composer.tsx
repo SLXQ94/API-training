@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons';
+import { renderComposerEmojiText, renderEmojiText } from '../emoji-render';
 import { editMessage, getState, sendMessage, setDraft } from '../store';
 import { MAX_TEXT, type ChatId } from '../types';
-import { EmojiPanel } from './EmojiPanel';
+
+const EmojiPanel = lazy(() => import('./EmojiPanel').then((module) => ({ default: module.EmojiPanel })));
 
 export interface EditTarget {
   id: number;
@@ -22,8 +24,12 @@ const isTouch = () => matchMedia('(pointer: coarse)').matches;
 export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
   const [text, setText] = useState(() => getState().drafts[chatId] ?? '');
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [composing, setComposing] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
+  const mirrorRef = useRef<HTMLDivElement>(null);
   const editingId = editing?.id;
+  const showEmojiMirror = !composing && typeof Intl.Segmenter === 'function' && /[\p{Extended_Pictographic}\p{Regional_Indicator}\u20E3]/u.test(text);
+  const mirroredText = useMemo(() => showEmojiMirror ? renderComposerEmojiText(text) : null, [showEmojiMirror, text]);
 
   // entering edit mode loads the old text; leaving it brings the draft back
   useEffect(() => {
@@ -39,6 +45,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = `${Math.min(el.scrollHeight, MAX_HEIGHT)}px`;
+    if (mirrorRef.current) mirrorRef.current.scrollTop = el.scrollTop;
   }, [text]);
 
   // laptop: start typing straight away. phone: don't pop the keyboard up uninvited
@@ -70,7 +77,8 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     const el = ref.current;
     const start = el?.selectionStart ?? text.length;
     const end = el?.selectionEnd ?? text.length;
-    const next = (text.slice(0, start) + emoji + text.slice(end)).slice(0, MAX_TEXT);
+    if (text.length - (end - start) + emoji.length > MAX_TEXT) return;
+    const next = text.slice(0, start) + emoji + text.slice(end);
     change(next);
     requestAnimationFrame(() => {
       el?.focus({ preventScroll: true });
@@ -103,7 +111,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
           <Icon name="edit" size={20} />
           <div className="edit-banner-body">
             <strong>Edit message</strong>
-            <span>{editing.text}</span>
+            <span>{renderEmojiText(editing.text)}</span>
           </div>
           <button className="icon-btn" aria-label="Cancel edit" onClick={onCancelEdit}>
             <Icon name="close" size={22} />
@@ -127,12 +135,21 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
         </button>
 
         <div className="input-wrap">
+          {showEmojiMirror && (
+            <div className="composer-emoji-mirror" ref={mirrorRef} aria-hidden="true">
+              {mirroredText}{'\u200B'}
+            </div>
+          )}
           <textarea
             ref={ref}
+            className={showEmojiMirror ? 'composer-mirrored' : undefined}
             rows={1}
             value={text}
             onChange={(e) => change(e.target.value)}
             onKeyDown={onKeyDown}
+            onCompositionStart={() => setComposing(true)}
+            onCompositionEnd={(e) => { setComposing(false); change(e.currentTarget.value); }}
+            onScroll={(e) => { if (mirrorRef.current) mirrorRef.current.scrollTop = e.currentTarget.scrollTop; }}
             maxLength={MAX_TEXT}
             placeholder={editing ? 'Edit message' : 'Type a message'}
             aria-label="Type a message"
@@ -159,7 +176,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
         </div>
       </div>
 
-      {emojiOpen && <EmojiPanel onPick={insertEmoji} />}
+      {emojiOpen && <Suspense fallback={<div className="emoji-panel emoji-empty" role="status">Loading emoji…</div>}><EmojiPanel onPick={insertEmoji} /></Suspense>}
     </div>
   );
 }

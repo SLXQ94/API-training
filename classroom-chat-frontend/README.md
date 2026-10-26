@@ -31,7 +31,7 @@ If it is unset the API answers any origin.
 - Chat list with unread badges, search (chats, people, message text), All / Unread / Groups filters, drafts
 - Class group chat and one-to-one chats, new-chat picker
 - Send, edit, delete (own messages), copy; failed sends can be retried; 429s are waited out automatically
-- Date separators, "N unread messages" divider, jump-to-latest button, in-chat message search, emoji picker
+- Date separators, "N unread messages" divider, jump-to-latest button, in-chat message search, emoji picker with local name search
 - Light and dark theme (follows the system, switch in the menu)
 - Phones: single-pane navigation with the Android back button, press and hold a bubble for the message menu
 
@@ -52,3 +52,5 @@ src/chats.ts        chat list / conversation derived from the store
 src/components/     Sidebar, ChatView, Composer, MessageRow, ...
 src/styles/         index.css (design tokens, light + dark), app.css (layout and components)
 ```
+
+The emoji picker uses the full WhatsApp Business Web category and English keyword tables stored in `src/emoji-data/`. Its search module loads when first used, and the picker renders only visible emoji rows. Picker, message, and composer emoji use the same 64 px WhatsApp Web sprite sheets bundled in `public/emoji/wa/64/`; unsupported emoji fall back to the device font. The composer keeps its native textarea for editing and places a synchronized sprite display behind its transparent text, preserving the caret and input behavior. On the first visit to a production build, the service worker downloads all 152 sheets (4.46 MB) in the background and stores them with the app's other assets. There is no time-based cache expiration; changed files are refreshed when a new service worker installs. Browser storage eviction or cleared site data can still remove the cache. The source sheets can be refreshed with `python scripts/download-whatsapp-emoji.py --refresh` when updating the Unicode table.
