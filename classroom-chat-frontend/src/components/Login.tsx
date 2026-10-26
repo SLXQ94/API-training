@@ -26,6 +26,7 @@ export function Login() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    (document.activeElement as HTMLElement | null)?.blur(); // hide the on-screen keyboard
     if (busy) return;
     const problem = validate();
     if (problem) return setError(problem);

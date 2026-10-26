@@ -18,8 +18,16 @@ history.replaceState({ idx }, '');
 
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
+// a transient layer (e.g. the emoji panel on a phone) that owns one history entry, so back closes it
+let overlay: { idx: number; close: () => void } | null = null;
+
 window.addEventListener('popstate', (e) => {
   idx = typeof e.state?.idx === 'number' ? e.state.idx : 0;
+  if (overlay && idx < overlay.idx) {
+    const { close } = overlay;
+    overlay = null;
+    close();
+  }
   emit();
 });
 window.addEventListener('hashchange', emit);
@@ -55,6 +63,21 @@ export function navigate(path: string, mode: 'push' | 'replace' = 'push') {
   if (mode === 'replace') history.replaceState({ idx }, '', url);
   else history.pushState({ idx: ++idx }, '', url);
   emit();
+}
+
+/**
+ * Push a history entry for a transient layer: the back button calls `close` instead of leaving the
+ * screen. Returns a disposer that removes the entry again if the layer was closed some other way.
+ */
+export function pushOverlay(close: () => void): () => void {
+  const mine = { idx: ++idx, close };
+  history.pushState({ idx }, '');
+  overlay = mine;
+  return () => {
+    if (overlay !== mine) return;
+    overlay = null;
+    history.back();
+  };
 }
 
 /** Go back one screen; if the app was opened on this screen, go to `fallback` instead. */

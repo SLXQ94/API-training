@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { renderComposerEmojiText, renderEmojiText } from '../emoji-render';
+import { isMobileLayout, pushOverlay } from '../router';
 import { editMessage, getState, sendMessage, setDraft } from '../store';
 import { MAX_TEXT, type ChatId } from '../types';
 
@@ -53,6 +54,12 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     if (!isTouch()) ref.current?.focus({ preventScroll: true });
   }, [chatId]);
 
+  // phone: the back button closes the emoji panel instead of leaving the chat
+  useEffect(() => {
+    if (!emojiOpen || !isMobileLayout()) return;
+    return pushOverlay(() => setEmojiOpen(false));
+  }, [emojiOpen]);
+
   const change = (value: string) => {
     setText(value);
     if (!editing) setDraft(chatId, value);
@@ -63,6 +70,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     if (!value) return;
     if (editing) {
       if (value !== editing.text.trim()) void editMessage(editing.id, value);
+      if (!isTouch()) setEmojiOpen(false);
       onCancelEdit();
       return;
     }
@@ -70,6 +78,7 @@ export function Composer({ chatId, editing, onCancelEdit, onSent }: Props) {
     setText('');
     setDraft(chatId, '');
     onSent();
+    if (!isTouch()) setEmojiOpen(false); // laptop: sending tucks the emoji panel away
     ref.current?.focus({ preventScroll: true });
   }, [text, editing, chatId, onCancelEdit, onSent]);
 
