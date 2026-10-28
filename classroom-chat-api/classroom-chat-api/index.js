@@ -28,6 +28,7 @@ const messagesRouter = require('./routes/messages');
 const logger = require('./middleware/logger');
 const requireAuth = require('./middleware/auth');
 const rateLimit = require('./middleware/rateLimit');
+const cors = require('./middleware/cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,9 +40,14 @@ const BASE_URL= process.env.BASE_URL;
 // routes they are meant to protect. A middleware placed after a route never sees
 // that route's requests.
 // ============================================================================
+// NEW: on Render we sit behind a proxy. Without this, req.ip is the PROXY's address for everybody,
+// so all students would share one rate-limit bucket. With it, req.ip is the real client address.
+app.set('trust proxy', 1);
 
 // STEP 5: logger
 app.use(logger);
+
+app.use(cors());
 
 // STEP 7: global rate limit, 10 requests / 10 seconds per IP.
 // It sits BEFORE auth on purpose: wrong-password attempts get counted too (brute-force protection).
