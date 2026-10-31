@@ -11,6 +11,7 @@
     "reset": "node scripts/reset.js"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "express": "^4.21.2",
     "node-cron": "^4.6.0"
   },

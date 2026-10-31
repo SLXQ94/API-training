@@ -1,0 +1,241 @@
+/* Design tokens. Every colour in the app comes from here, so light/dark is one switch.
+   The values are sampled from the current WhatsApp Web (light and dark), not guessed. */
+:root {
+  color-scheme: light;
+  --font: 'Segoe UI', 'Helvetica Neue', Helvetica, 'Lucida Grande', Arial, Ubuntu, Cantarell, 'Fira Sans', sans-serif;
+  --emoji-font: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+
+  --page-bg: #d1d7db;
+  --band: #1daa61;
+  --panel: #ffffff;
+  --panel-elevated: #ffffff;
+  --rail-bg: #f7f5f3;
+  --rail-active: #efecea;
+  --border: #e5e5e5;
+  --border-strong: #cccccc;
+  --hover: #faf9f8;
+  --selected: #f6f5f4;
+
+  --text: #0a0a0a;
+  --text-2: #666666;
+  --icon: #0a0a0a;
+  --icon-hover: rgba(10, 10, 10, 0.06);
+  --accent: #1daa61;
+  --accent-strong: #1daa61;
+  --accent-time: #1daa61;
+  --link: #027eb5;
+  --badge-bg: #1daa61;
+  --badge-text: #ffffff;
+  --on-accent: #ffffff;
+  --error: #ea0038;
+
+  --search-bg: #f6f5f4;
+  --chip-bg: #ffffff;
+  --chip-border: #cccccc;
+  --chip-text: #404040;
+  --chip-active-bg: #d9fdd3;
+  --chip-active-text: #15603e;
+  --chip-active-border: #aecaa9;
+
+  --list-header-bg: #ffffff;
+  --list-header-text: #1daa61;
+  --list-header-icon: #0a0a0a;
+  --header-bg: #ffffff;
+  --header-text: #0a0a0a;
+  --header-sub: #666666;
+  --header-icon: #0a0a0a;
+
+  --chat-bg: #f5f1eb;
+  --doodle: #eee6dd;
+  --bubble-in: #ffffff;
+  --bubble-out: #d9fdd3;
+  --bubble-text: #0a0a0a;
+  --meta-in: #666666;
+  --meta-out: #576554;
+  --bubble-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+  --pill-bg: #ffffff;
+  --pill-text: #54656f;
+  --info-bg: #ffeecd;
+  --info-text: #54656f;
+
+  --composer-bg: #f5f1eb;
+  --input-bg: #ffffff;
+  --empty-bg: #f7f5f3;
+  --empty-title: #41525d;
+
+  --menu-bg: #ffffff;
+  --menu-hover: #f6f5f4;
+  --menu-shadow: 0 2px 5px rgba(11, 20, 26, 0.26), 0 2px 10px rgba(11, 20, 26, 0.16);
+  --overlay: rgba(11, 20, 26, 0.5);
+  --toast-bg: #111b21;
+  --toast-text: #ffffff;
+
+  /* people: a pastel disc with a saturated initial; the same hue colours their name in group chats */
+  --avatar-bg: #dfe5e7;
+  --avatar-fg: #ffffff;
+  --av-s: 100%;
+  --av-l: 93%;
+  --av-fg-s: 68%;
+  --av-fg-l: 52%;
+  --skeleton: #efecea;
+  --skeleton-hi: #f9f8f7;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page-bg: #0a0c0c;
+  --band: transparent;
+  --panel: #161717;
+  --panel-elevated: #2e2f2f;
+  --rail-bg: #1d1f1f;
+  --rail-active: #343636;
+  --border: #2e2f2f;
+  --border-strong: #3d3f3f;
+  --hover: #1d1f1f;
+  --selected: #2e2f2f;
+
+  --text: #fafafa;
+  --text-2: #a2a2a2;
+  --icon: #fafafa;
+  --icon-hover: rgba(255, 255, 255, 0.08);
+  --accent: #21c063;
+  --accent-strong: #21c063;
+  --accent-time: #21c063;
+  --link: #53bdeb;
+  --badge-bg: #21c063;
+  --badge-text: #161717;
+  --on-accent: #0a0a0a;
+  --error: #f15c6d;
+
+  --search-bg: #2e2f2f;
+  --chip-bg: transparent;
+  --chip-border: #2e2f2f;
+  --chip-text: #d4d4d4;
+  --chip-active-bg: #103529;
+  --chip-active-text: #d9fdd3;
+  --chip-active-border: #284a3f;
+
+  --list-header-bg: #161717;
+  --list-header-text: #fafafa;
+  --list-header-icon: #fafafa;
+  --header-bg: #161717;
+  --header-text: #fafafa;
+  --header-sub: #a2a2a2;
+  --header-icon: #fafafa;
+
+  --chat-bg: #161717;
+  --doodle: #252626;
+  --bubble-in: #242626;
+  --bubble-out: #144d37;
+  --bubble-text: #fafafa;
+  --meta-in: #a7a8a8;
+  --meta-out: #a1b8af;
+  --bubble-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.35);
+  --pill-bg: #242626;
+  --pill-text: #a2a2a2;
+  --info-bg: #242626;
+  --info-text: #ffd279;
+
+  --composer-bg: #161717;
+  --input-bg: #242626;
+  --empty-bg: #1d1f1f;
+  --empty-title: #fafafa;
+
+  --menu-bg: #262828;
+  --menu-hover: #343636;
+  --menu-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.35);
+  --overlay: rgba(0, 0, 0, 0.7);
+  --toast-bg: #fafafa;
+  --toast-text: #0a0a0a;
+
+  --avatar-bg: #2f3232;
+  --avatar-fg: #8a8e8f;
+  --av-s: 34%;
+  --av-l: 18%;
+  --av-fg-s: 100%;
+  --av-fg-l: 75%;
+  --skeleton: #202222;
+  --skeleton-hi: #2c2e2e;
+}
+
+/* Phones keep the same palette; headers follow it (white with a green title, or charcoal). */
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--page-bg);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  text-rendering: optimizeLegibility;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+button:disabled {
+  cursor: default;
+}
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+::placeholder {
+  color: var(--text-2);
+  opacity: 1;
+}
+mark {
+  background: rgba(255, 214, 0, 0.4);
+  color: inherit;
+  border-radius: 2px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(134, 150, 160, 0.4) transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

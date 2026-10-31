@@ -20,6 +20,7 @@
 // ============================================================================
 const os = require('os');
 const express = require('express');
+const cors = require('cors');
 const cron = require('node-cron');
 
 const { sendError } = require('./lib/errors');
@@ -32,7 +33,7 @@ const cors = require('./middleware/cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BASE_URL= process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL;
 
 // ============================================================================
 // MIDDLEWARE SLOTS
@@ -43,6 +44,8 @@ const BASE_URL= process.env.BASE_URL;
 // NEW: on Render we sit behind a proxy. Without this, req.ip is the PROXY's address for everybody,
 // so all students would share one rate-limit bucket. With it, req.ip is the real client address.
 app.set('trust proxy', 1);
+
+app.use(cors());
 
 // STEP 5: logger
 app.use(logger);
@@ -103,7 +106,7 @@ cron.schedule('*/10 * * * *', async () => {
   const healthUrl = `${BASE_URL}/health`;
   console.log(`[CRON] Calling health check: ${healthUrl}`);
   try {
-    const res = await fetch(healthUrl, { 
+    const res = await fetch(healthUrl, {
       timeout: 5000,
     });
     const status = res.status;
